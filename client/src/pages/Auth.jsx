@@ -19,8 +19,18 @@ export default function Auth() {
       const path = mode === 'login' ? '/auth/login' : '/auth/register'
       const payload = mode === 'login' ? { email: form.email, password: form.password } : form
       const res = await apiFetch(path, { method: 'POST', body: payload })
+      if (!res?.token) {
+        throw new Error('Login failed: no token returned')
+      }
       localStorage.setItem('token', res.token)
-      navigate('/dashboard')
+      if (res?.user?.role) {
+        localStorage.setItem('role', res.user.role)
+      }
+      try {
+        navigate('/dashboard', { replace: true })
+      } catch (_) {
+        window.location.href = '/dashboard'
+      }
     } catch (err) {
       setError(err.message)
     } finally {

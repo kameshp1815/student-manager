@@ -5,6 +5,7 @@ import { apiFetch } from '../services/api'
 export default function Dashboard() {
   const [user, setUser] = useState(null)
   const [error, setError] = useState('')
+  const [count, setCount] = useState(0)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -17,6 +18,18 @@ export default function Dashboard() {
       }
     }
     load()
+  }, [])
+
+  useEffect(() => {
+    async function loadCount() {
+      try {
+        const res = await apiFetch('/students/count')
+        setCount(res.count || 0)
+      } catch (e) {
+        // ignore, already handled by auth
+      }
+    }
+    loadCount()
   }, [])
 
   const logout = () => {
@@ -35,7 +48,15 @@ export default function Dashboard() {
           {error}
         </div>
       )}
-      <p style={{ marginTop: 16 }}>This is your dashboard. Build your large project here.</p>
+      <div style={{ marginTop: 16 }}>
+        <div style={{ padding: 12, border: '1px solid #93c5fd', borderRadius: 8, background: '#ffffff' }}>
+          <strong>Total students:</strong> {count}
+        </div>
+        <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+          <button onClick={() => navigate('/students/new')}>Add Student</button>
+          <button onClick={() => navigate('/students')}>View Students</button>
+        </div>
+      </div>
     </div>
   )
 }

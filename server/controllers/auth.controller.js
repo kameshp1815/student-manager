@@ -15,10 +15,12 @@ exports.register = async (req, res) => {
     if (exists) return res.status(409).json({ message: 'Email already registered' })
 
     const hashed = await bcrypt.hash(password, 10)
-    const user = await User.create({ name, email, password: hashed })
+    const userCount = await User.countDocuments()
+    const role = userCount === 0 ? 'admin' : 'user'
+    const user = await User.create({ name, email, password: hashed, role })
 
     const token = sign(user)
-    res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email } })
+    res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } })
   } catch (e) {
     res.status(500).json({ message: 'Server error' })
   }
@@ -36,7 +38,7 @@ exports.login = async (req, res) => {
     if (!ok) return res.status(401).json({ message: 'Invalid credentials' })
 
     const token = sign(user)
-    res.json({ token, user: { id: user._id, name: user.name, email: user.email } })
+    res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } })
   } catch (e) {
     res.status(500).json({ message: 'Server error' })
   }

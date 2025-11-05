@@ -11,6 +11,7 @@ app.use(morgan('dev'))
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 app.use('/api/auth', require('./routes/auth.routes'))
+app.use('/api/students', require('./routes/student.routes'))
 
 async function start() {
   const { MONGODB_URI, JWT_SECRET, PORT = 5000 } = process.env
